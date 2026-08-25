@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
 
      monthlyIncome: {
        type: Number,
-       required: true
+       default: 0
      },
 
      currency: { type: String, default: 'INR'}
