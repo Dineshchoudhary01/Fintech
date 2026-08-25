@@ -81,11 +81,27 @@
   }
 
 
+  async function Logout(req,res){
+    try {
+        const refreshToken = req.cookies.refreshToken;
 
-
-
-
-
-
+        if(refreshToken){
+            await User.findOneAndUpdate(
+                 { refreshToken },
+                 { refreshToken: null}
+            );
+        }
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict'
+        });
+        res.status(200).json({ msg: 'logout successfully'});
+    } catch (error) {
+        res.status(500).json({ msg: 'logout failed', error: error.message});
+    }
+  }
 
  }
+
+ module.exports = { register, Login, Logout};
