@@ -63,6 +63,9 @@
      
     const accessToken = generateAccessToken(user._id);
     const refreshToken = generateRefreshToken(user._id);
+
+    user.refreshToken = refreshToken;   // ← ye line add karo
+await user.save();  
     
      res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
@@ -79,7 +82,7 @@
   } catch (error) {
      res.status(500).json({ msg: 'login failed', error: error.message});
   }
-
+ }
 
   async function Logout(req,res){
     try {
@@ -102,6 +105,44 @@
     }
   }
 
- }
+  async function refreshAccessToken(req,res){
+   try {
+     
+    const refreshToken = req.cookies.refreshToken;
+     console.log('1. Cookie se mila token:', refreshToken);
 
- module.exports = { register, Login, Logout};
+    
+    if(!refreshToken){
+        return res.status(401).json({ msg: 'refreshToken not found'})
+    }
+    
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+     console.log('2. Decoded:', decoded);
+
+     
+    const user = await User.findById( decoded.id).select('+refreshToken');
+   console.log('3. User mila:', user);
+
+    
+
+    if(!user){
+        return res.status(403).json({ msg: 'Invalid refresh token'});
+    }
+   
+    if(user.refreshToken !== refreshToken){
+        return res.status(403).json({ msg: 'Invalid refresh token'});
+    }
+
+    const accessToken = generateAccessToken(user._id);
+
+    res.status(200).json({ accessToken });
+
+   } catch (error) {
+     return res.status(403).json({ msg: 'Invalid or expired refresh token'});
+   }
+
+  }
+
+ 
+
+ module.exports = { register, Login, Logout, refreshAccessToken};

@@ -20,6 +20,12 @@ const userSchema = new mongoose.Schema({
         select: false
      },
 
+     refreshToken: {
+    type: String,
+    default: null,
+    select: false
+  },
+
      monthlyIncome: {
        type: Number,
        default: 0
