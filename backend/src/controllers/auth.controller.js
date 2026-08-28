@@ -64,7 +64,7 @@
     const accessToken = generateAccessToken(user._id);
     const refreshToken = generateRefreshToken(user._id);
 
-    user.refreshToken = refreshToken;   // ← ye line add karo
+    user.refreshToken = refreshToken;   
 await user.save();  
     
      res.cookie('refreshToken', refreshToken, {
@@ -143,6 +143,10 @@ await user.save();
 
   }
 
+  async function getProfile(req,res) {
+    res.status(200).json({ user: req.user });
+  }
+
  
 
- module.exports = { register, Login, Logout, refreshAccessToken};
+ module.exports = { register, Login, Logout, refreshAccessToken , getProfile};
