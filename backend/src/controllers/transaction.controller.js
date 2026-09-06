@@ -30,7 +30,21 @@ async function createTransaction(req,res){
 
     } catch (error) {
         res.status(500).json({ msg: 'Failed to create transaction ', error:error.message});
+       
     }
 }
 
-module.exports = { createTransaction };
+
+async function getTransaction(req,res){
+    try {
+        const transactions = await Transaction.find({ user: req.user._id})
+         .populate('category')
+         .sort({ date: -1});
+
+        res.status(200).json(transactions)
+    } catch (error) {
+        res.status(500).json({ msg: 'Failed to fetch transactions', error: error.message});
+    }
+}
+
+module.exports = { createTransaction,getTransaction };
