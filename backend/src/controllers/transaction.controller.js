@@ -75,4 +75,31 @@ async function updateTransaction(req,res){
     }
 }
 
-module.exports = { createTransaction,getTransaction,updateTransaction };
+
+async function deleteTransaction(req,res){
+    try {
+        const transactionId = req.params.id;
+        const transaction = await Transaction.findById(transactionId);
+        if(!transaction){
+            return res.status(404).json({ msg: "transaction not found"});
+        }
+
+        if(transaction.user.toString() !== req.user._id.toString()){
+            return res.status(403).json({ msg: "Not authorized to delete this transaction"});
+        }
+
+        await Transaction.deleteOne();
+        res.status(200).json(transaction);
+
+    } catch (error) {
+        res.status(500).json({ msg: "Failed to delete transaction"});
+    }
+}
+
+
+
+
+
+
+
+module.exports = { createTransaction,getTransaction,updateTransaction, deleteTransaction };
