@@ -47,4 +47,32 @@ async function getTransaction(req,res){
     }
 }
 
-module.exports = { createTransaction,getTransaction };
+async function updateTransaction(req,res){
+    try {
+        const transactionId = req.params.id;
+        const transaction = await Transaction.findById(transactionId);
+        if(!transaction){
+            return res.status(404).json({ msg: "Transaction not found"});
+        }
+
+        if(transaction.user.toString() !== req.user._id.toString()){
+            return res.status(403).json({ msg: "Not authorized to update this transaction"})
+        }
+
+       const { amount, type, description, category, paymentMethod} = req.body;
+
+       if(amount !== undefined) transaction.amount = amount;
+       if(type !== undefined) transaction.type = type;
+       if(description !== undefined) transaction.description = description;
+       if(category !== undefined) transaction.category = category;
+       if(paymentMethod !== undefined) transaction.paymentMethod = paymentMethod;
+
+       await transaction.save();
+       res.status(200).json(transaction);
+
+    } catch (error) {
+        res.status(500).json({ msg: "Failed to update transaction", error: error.message});  
+    }
+}
+
+module.exports = { createTransaction,getTransaction,updateTransaction };

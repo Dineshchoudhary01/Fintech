@@ -17,6 +17,7 @@ app.use('/api/auth', route);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/transactions', transactionRoutes);
 
+
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })
