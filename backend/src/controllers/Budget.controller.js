@@ -31,4 +31,16 @@ async function createBudget(req,res){
     }
 }
 
-module.exports = { createBudget };
+async function getBudget(req,res){
+    try {
+        const budget = await Budget.find({ user: req.user._id})
+        .populate('category')
+        .sort({ month : -1});  
+
+        res.status(200).json(budget);
+    } catch (error) {
+         res.status(500).json({ msg: "Failed to fetch budgets", error: error.message});
+    }
+}
+
+module.exports = { createBudget, getBudget };
