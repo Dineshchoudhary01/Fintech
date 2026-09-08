@@ -17,7 +17,7 @@ app.use(cookieParser());
 app.use('/api/auth', route);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/transactions', transactionRoutes);
-app.use('/api/budget', budgetRoutes);
+app.use('/api/budgets', budgetRoutes);
 
 
 app.get('/', (req, res) => {
