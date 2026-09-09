@@ -1,4 +1,6 @@
 const Transaction = require('../models/Transaction');
+const fs = require('fs');
+const csv = require('csv-parser');
 const Category = require('../models/Category');
 const { categorizeTransaction } = require('../services/aiServices');
 
@@ -120,10 +122,79 @@ async function deleteTransaction(req,res){
     }
 }
 
+async function uploadTransactionsCSV(req,res){
+  try {
+    if(!req.file){
+      return res.status(400).json({ msg: "please upload a CSV file"});
+    }
+
+    const results = [];
+    const errors = [];
+
+    const userCategories =  await Category.find({
+      $or: [{ idDefault: true}, { user:req.user._id}]
+    });
+
+    const categoryNames = userCategories.map(c => c.name);
+
+    fs.createReadStream(req.file.path)
+    .pipe(csv())
+    .on('data', (row) => {
+      results.push(row);
+    })
+    .on('end', async () => {
+      const transactionsToInsert = [];
+
+      for(const row of results){
+        const { description, amount, type } = row;
+
+        if(!description || !amount || !type){
+          errors.push({ row, reason: "Missing required fields"});
+          continue;
+        }
+
+        const predictedName = await categorizeTransaction(description,categoryNames);
+        const matchedCategory = userCategories.find(
+          c => c.name.toLowerCase() === predictedName?.toLowerCase()
+        );
+
+         if(!matchedCategory){
+          errors.push({ row, reson: "Could not determine category"});
+          continue;
+         }
+        
+         transactionsToInsert.push({
+          user: req.user._id,
+          amount: Number(amount),
+          type,
+          description,
+          category: matchedCategory._id,
+          categorySource: 'ai'
+         });
+      }
+
+     await Transaction.insertMany(transactionsToInsert);
+
+     fs.unlinkSync(req.file.path);
+
+     res.status(201).json({
+      msg: "CSV processed",
+      imported: transactionsToInsert.length,
+      failed: errors.length,
+      errors
+     });
+
+
+    });
+  } catch (error) {
+    res.status(500).json({ msg: "Failed to process CSV", error: error.message});
+  }
+}
 
 
 
 
 
 
-module.exports = { createTransaction,getTransaction,updateTransaction, deleteTransaction };
+
+module.exports = { createTransaction,getTransaction,updateTransaction, deleteTransaction, uploadTransactionsCSV };
