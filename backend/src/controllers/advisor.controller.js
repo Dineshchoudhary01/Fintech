@@ -63,3 +63,5 @@ async function getBudgetInsights(req,res){
         res.status(500).json({ msg: "Failed to generate budget insights", error: error.message});
     }
 }
+
+module.exports = { getBudgetInsights }

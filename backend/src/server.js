@@ -19,7 +19,7 @@ app.use('/api/auth', route);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/budgets', budgetRoutes);
-app.use('api/advisor', advisorRoutes);
+app.use('/api/advisor', advisorRoutes);
 
 
 app.get('/', (req, res) => {

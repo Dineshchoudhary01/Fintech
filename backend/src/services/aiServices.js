@@ -25,4 +25,30 @@ Reply with ONLY the category name from the list, nothing else. No explanation, n
   }
 }
 
-module.exports = { categorizeTransaction };
+
+async function generateBudgetAdvice(summary){
+  try {
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash '});
+
+    const summaryText = summary.map(item => 
+      `${item.category}: spent ₹${item.spent} out of ₹${item.budgetLimit} budget (${item.percentageUsed}% used, ₹${item.remaining} remaining)`
+    ).join('\n');
+
+     const prompt = `You are a friendly personal finance advisor. Based on the following budget data for this month, give the user 2-3 short, specific, actionable pieces of advice. Be encouraging but honest about overspending. Keep the total response under 100 words.
+       Budget data:
+${summaryText}
+
+Give practical advice based on this data only.`;
+
+   const result = await model.generateContent(prompt);
+   const response = result.response;
+
+   return response.text().trim();
+
+  } catch (error) {
+    console.log('Budget advice generation failed:', error.message);
+    return "Unable to generate advice at this time.";
+  }
+}
+
+module.exports = { categorizeTransaction, generateBudgetAdvice };
