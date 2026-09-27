@@ -1,31 +1,32 @@
 
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './routes/ProtectedRoute';
-import Layout from "./components/layout/Layout";
+import Layout from './components/layout/Layout';
 import LoginPage from './pages/LoginPage';
-import RegisterPage from "./pages/RegisterPage";
+import RegisterPage from './pages/RegisterPage';
+import DashboardPage from './pages/DashboardPage';
 import TransactionsPage from './pages/TransactionsPage';
 
 function App() {
- 
-
   return (
-   <AuthProvider>
-    <BrowserRouter>
-    <Routes>
-      <Route path="/Login" element={<LoginPage/>}/>
-      <Route path="/register" element={<RegisterPage/>}/>
-       <Route path="/transactions" element={<TransactionsPage />} />
-      <Route element={<ProtectedRoute/>}>
-        <Route element={<Layout/>}>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Navigate to="/dashboard" />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
 
-        </Route>
-      </Route>
-    </Routes>
-    </BrowserRouter>
-   </AuthProvider>
-  )
+          <Route element={<ProtectedRoute />}>
+            <Route element={<Layout />}>
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/transactions" element={<TransactionsPage />} />
+            </Route>
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  );
 }
 
-export default App
+export default App;

@@ -1,8 +1,9 @@
 import axiosInstance from './axiosInstance';
 
-export const getCategories = () => axiosInstance.get('/categories');
-export const createCategory = (data) => axiosInstance.post('/categories', data);
-export const deleteCategory = (id) => axiosInstance.delete(`/categories/${id}`);
+export const getTransactions = () => axiosInstance.get('/transactions');
+export const createTransaction = (data) => axiosInstance.post('/transactions', data);
+export const updateTransaction = (id, data) => axiosInstance.put(`/transactions/${id}`, data);
+export const deleteTransaction = (id) => axiosInstance.delete(`/transactions/${id}`);
 
 export const uploadTransactionsCSV = (file) => {
   const formData = new FormData();
