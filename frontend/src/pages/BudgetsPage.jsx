@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from 'react';
-import { getBudgets, createBudget, deleteBudget } from '../api/budgetApi';
+import { getBudgets, createBudget, updateBudget, deleteBudget } from '../api/budgetApi';
 import { getCategories } from '../api/categoryApi';
 
 function BudgetsPage() {
@@ -9,6 +10,8 @@ function BudgetsPage() {
   const [category, setCategory] = useState('');
   const [monthlyLimit, setMonthlyLimit] = useState('');
   const [error, setError] = useState('');
+  const [editingId, setEditingId] = useState(null);
+  const [editValue, setEditValue] = useState('');
 
   const getCurrentMonthFirstDay = () => {
     const now = new Date();
@@ -55,6 +58,17 @@ function BudgetsPage() {
     fetchData();
   };
 
+  const startEdit = (budget) => {
+    setEditingId(budget._id);
+    setEditValue(budget.monthlyLimit);
+  };
+
+  const saveEdit = async (id) => {
+    await updateBudget(id, { monthlyLimit: Number(editValue) });
+    setEditingId(null);
+    fetchData();
+  };
+
   if (loading) return <p className="text-slate-500">Loading...</p>;
 
   return (
@@ -78,16 +92,48 @@ function BudgetsPage() {
                 <div key={b._id} className="bg-white rounded-xl border border-slate-100 shadow-sm p-5">
                   <div className="flex justify-between items-center mb-2">
                     <span className="font-medium text-slate-900">{b.category?.name}</span>
-                    <button onClick={() => handleDelete(b._id)} className="text-red-600 text-sm hover:underline">
-                      Delete
-                    </button>
+                    <div className="flex gap-3">
+                      <button onClick={() => startEdit(b)} className="text-blue-600 text-sm hover:underline">
+                        Edit
+                      </button>
+                      <button onClick={() => handleDelete(b._id)} className="text-red-600 text-sm hover:underline">
+                        Delete
+                      </button>
+                    </div>
                   </div>
-                  <div className="w-full bg-slate-100 rounded-full h-2 mb-2">
-                    <div className={`h-2 rounded-full ${barColor}`} style={{ width: `${percentage}%` }} />
-                  </div>
-                  <p className="text-sm text-slate-500">
-                    ₹{spent} of ₹{b.monthlyLimit} ({percentage}%)
-                  </p>
+
+                  {editingId === b._id ? (
+                    <div className="flex gap-2 mb-2">
+                      <input
+                        type="number"
+                        value={editValue}
+                        onChange={(e) => setEditValue(e.target.value)}
+                        className="flex-1 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        autoFocus
+                      />
+                      <button
+                        onClick={() => saveEdit(b._id)}
+                        className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-blue-700"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => setEditingId(null)}
+                        className="border border-slate-200 px-3 py-1.5 rounded-lg text-sm hover:bg-slate-50"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="w-full bg-slate-100 rounded-full h-2 mb-2">
+                        <div className={`h-2 rounded-full ${barColor}`} style={{ width: `${percentage}%` }} />
+                      </div>
+                      <p className="text-sm text-slate-500">
+                        ₹{spent} of ₹{b.monthlyLimit} ({percentage}%)
+                      </p>
+                    </>
+                  )}
                 </div>
               );
             })
