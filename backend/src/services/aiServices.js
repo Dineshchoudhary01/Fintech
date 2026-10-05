@@ -28,7 +28,7 @@ Reply with ONLY the category name from the list, nothing else. No explanation, n
 
 async function generateBudgetAdvice(summary){
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash '});
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash'});
 
     const summaryText = summary.map(item => 
       `${item.category}: spent ₹${item.spent} out of ₹${item.budgetLimit} budget (${item.percentageUsed}% used, ₹${item.remaining} remaining)`

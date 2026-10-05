@@ -8,10 +8,16 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
 const budgetRoutes = require('./routes/budget');
 const advisorRoutes = require('./routes/advisorRoutes');
+const cors = require('cors');
 
 
 const app = express()
 const port = 3000
+
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
 
 app.use(express.json());
 app.use(cookieParser());
@@ -20,6 +26,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/budgets', budgetRoutes);
 app.use('/api/advisor', advisorRoutes);
+
 
 
 app.get('/', (req, res) => {
